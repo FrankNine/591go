@@ -1,0 +1,1 @@
+SELECT * FROM rentInfo WHERE floor = max_floor
