@@ -7,8 +7,8 @@ import (
 
 	"database/sql"
 
-	rent "github.com/FrankNine/fiveN1-rent-scraper"
 	_ "github.com/mattn/go-sqlite3"
+	rent "github.com/neighborhood999/fiveN1-rent-scraper"
 )
 
 func main() {
