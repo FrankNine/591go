@@ -33,6 +33,8 @@ func main() {
 	db, err := sql.Open("sqlite3", "./foo.db")
 	checkErr(err)
 
+	db.Exec("TRUNCATE rentinfo")
+
 	stmt, err := db.Prepare("INSERT INTO rentinfo(title, url, address, floor, max_floor, is_new, ping, price, rent_type, option_type) values(?,?,?,?,?,?,?,?,?,?)")
 	checkErr(err)
 
