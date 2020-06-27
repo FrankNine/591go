@@ -12,13 +12,24 @@ import (
 )
 
 func main() {
-	options := rent.NewOptions()
 	// https://github.com/neighborhood999/fiveN1-rent-scraper/blob/master/list/url-jump-ip.md
-	options.Region = 1
 	// https://github.com/neighborhood999/fiveN1-rent-scraper/blob/master/list/section.md
-	options.Section = "4,7"
+	songXinInfo := dumpRegion(1, "4,7", "10000, 40000")
+	writeDatabase(songXinInfo, "松山信義.db")
+
+	daInfo := dumpRegion(1, "5", "10000, 40000")
+	writeDatabase(daInfo, "大安.db")
+
+	zongInfo := dumpRegion(1, "1,3", "10000, 40000")
+	writeDatabase(zongInfo, "中山中正.db")
+}
+
+func dumpRegion(region int, section string, rentPrice string) rent.HouseInfoCollection {
+	options := rent.NewOptions()
+	options.Region = region
+	options.Section = section
 	options.Kind = 0
-	options.RentPrice = "10000, 40000"
+	options.RentPrice = rentPrice
 
 	url, err := rent.GenerateURL(options)
 	if err != nil {
@@ -30,15 +41,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := sql.Open("sqlite3", "./foo.db")
+	return f.RentList
+}
+
+func writeDatabase(infoCollection rent.HouseInfoCollection, databaseName string) {
+	db, err := sql.Open("sqlite3", databaseName)
 	checkErr(err)
+
+	db.Exec(`CREATE TABLE IF NOT EXISTS"rentInfo" (
+		"title"	TEXT,
+		"url"	TEXT UNIQUE,
+		"address"	TEXT,
+		"floor"	TEXT,
+		"max_floor"	TEXT,
+		"is_new"	TEXT,
+		"ping"	TEXT,
+		"price"	TEXT,
+		"rent_type"	TEXT,
+		"option_type"	TEXT
+	)`)
 
 	db.Exec("TRUNCATE rentinfo")
 
 	stmt, err := db.Prepare("INSERT INTO rentinfo(title, url, address, floor, max_floor, is_new, ping, price, rent_type, option_type) values(?,?,?,?,?,?,?,?,?,?)")
 	checkErr(err)
 
-	for p, page := range f.RentList {
+	for p, page := range infoCollection {
 		fmt.Printf("Page: %d", p)
 		for _, r := range page {
 			fmt.Println(r.Title)

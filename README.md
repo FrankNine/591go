@@ -3,5 +3,5 @@ go get
 ```
 
 ```
-go run test.go
+go run main.go
 ```
